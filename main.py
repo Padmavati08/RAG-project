@@ -1,0 +1,1 @@
+print("RAG project setup")
