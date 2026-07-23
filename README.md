@@ -106,7 +106,7 @@ The system retrieves relevant document chunks and generates a precise answer.
 
 ---
 
-## 📅 Development Timeline (3 Weeks)
+## 📅 Development Timeline 
 
 ### Week 1 — Foundation & Data Pipeline
 
@@ -180,6 +180,3 @@ The system is fully functional and capable of:
 ## 📌 Author
 
 **Padmavati Naik**
-
-
-Give it a star on GitHub ⭐
