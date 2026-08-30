@@ -1,182 +1,88 @@
-# 📚 RAG-Based Educational Assistant
+# 🎓 RAG Educational Assistant & Evaluation Suite
 
-A complete Retrieval-Augmented Generation (RAG) system that answers questions from educational PDFs using local LLMs via Ollama.
+An end-to-end **Retrieval-Augmented Generation (RAG)** educational platform engineered with a vector database, cosine-similarity retrieval pipeline, transparent source grounding, and an automated quality evaluation framework.
 
----
+## 📌 System Architecture
+┌─────────────────────────────┐
+                          │       Knowledge Corpus      │
+                           │  (Document Ingestion / DB)  │
+                           └──────────────┬──────────────┘
+                                          │ Chunking & Embeddings
+                                          ▼┌──────────────────┐ ┌─────────────────────────┐
+│ User Query │──────────────►│ Vector Database │
+└──────────────────┘ │ (Cosine Similarity) │
+└──────────┬──────────────┘
+│ Top-K Chunks
+▼
+┌────────────────────────────────────────────────────────────┐
+│ RAG Synthesis Engine │
+│ - Context Assembly & Grounded Prompt Construction │
+│ - LLM Generation (Gemini API / Grounded Synthesizer) │
+└─────────────────────────────┬──────────────────────────────┘
+│
+▼
+┌────────────────────────────────────────────────────────────┐
+│ Grounded Response │
+│ - Verified Answer Content │
+│ - Exact Source Citations & Chunk IDs │
+│ - Match Confidence Scores │
+└─────────────────────────────┬──────────────────────────────┘
+│
+▼
+┌────────────────────────────────────────────────────────────┐
+│ Automated Evaluation Framework │
+│ - Faithfulness Score (Grounding Validation) │
+│ - Context Precision (Noise Ratio) │
+│ - Answer Relevance (Query Alignment) │
+└────────────────────────────────────────────────────────────┘
 
-## 🚀 Overview
 
-This project implements an end-to-end **RAG pipeline** that:
+## 🧠 Key Features & Functional Modules
 
-* Loads PDF documents
-* Splits them into meaningful chunks
-* Converts them into embeddings
-* Stores them in a vector database (FAISS)
-* Retrieves relevant context for user queries
-* Generates accurate answers using a local LLM
+### 1. 🔍 Vector Database & Retrieval Engine
+- **Pre-Indexed Knowledge Base:** 40+ structured domain chunks covering e-commerce architectures, IT infrastructure, B2B procurement workflows, and digital business models.
+- **Vector Space Modeling:** High-dimensional vector representations computed for user queries and knowledge chunks.
+- **Cosine Similarity Search:** Real-time semantic similarity ranking (0.0 to 1.0) with configurable relevance thresholds and top-k filtering.
 
----
+### 2. 🤖 Grounded Educational Assistant
+**Zero-Hallucination Generation:** Ensures the language model generates answers strictly constrained by retrieved source context.
+- **Transparent Source Citations:** Every answer displays chunk references, document titles, similarity percentages, and text snippets used during synthesis.
+- **Interactive Question Workbench:** Pre-loaded domain queries (e-commerce vs e-business, Tata Steel SAP procurement, EDI standards, supply chain models).
 
-## 🧠 Key Features
+### 3. 📊 Automated Quality Evaluation Suite
+Evaluates and benchmarks RAG performance across industry-standard RAGAS metrics:
+- **Faithfulness Score:** Checks factual alignment between the generated response and retrieved context chunks.
+- **Context Precision / Relevance:** Measures noise reduction and the proportion of useful information retrieved.
+- **Answer Relevance:** Validates how directly the answer addresses the user's specific prompt.
+- **Comparative Benchmarks:** Side-by-side comparison of Grounded RAG vs. Non-RAG baseline outputs to demonstrate hallucination reduction.
 
-* 📄 PDF-based question answering
-* 🔍 Semantic search using FAISS
-* 🧩 Context-aware responses (not generic AI answers)
-* 🤖 Local LLM support via Ollama (no API cost)
-* 🌐 Streamlit web UI
-* ⚡ Fast retrieval + response pipeline
+### 4. 📂 Dynamic Document Ingestion
+- Real-time ingestion interface supporting `.pdf` and `.txt` lecture notes for chunking, embedding, and indexing on the fly.
 
 ---
 
 ## 🏗️ Tech Stack
 
-| Component  | Technology                     |
-| ---------- | ------------------------------ |
-| Language   | Python                         |
-| Framework  | LangChain                      |
-| Embeddings | Sentence Transformers (MiniLM) |
-| Vector DB  | FAISS                          |
-| LLM        | Ollama (llama3 / gemma)        |
-| UI         | Streamlit                      |
-| Input      | PDF Documents                  |
+| Layer | Technology |
+|---|---|
+| **Frontend** | React 18, TypeScript, Tailwind CSS, Lucide Icons, Motion |
+| **Backend** | Node.js, Express, TSX |
+| **Vector Engine** | In-Memory Vector Store, Cosine Similarity, Vector Space Models |
+| **LLM & Synthesis** | Google Gemini API / Deterministic Grounded Synthesizer |
+| **Evaluation** | Automated RAGAS-inspired Metric Engine |
 
 ---
 
-## 📂 Project Structure
-
-```
+## 📁 Project Directory Structure
 RAG-project/
-│
-├── data/                   # PDF files
 ├── src/
-│   ├── main.py             # Core RAG pipeline
-│   └── app.py              # Streamlit UI
-├── vectorstore/            # FAISS index storage
-├── requirements.txt
-└── README.md
-```
-
----
-
-## ⚙️ How It Works
-
-```
-Load PDFs → Split into chunks → Create embeddings
-→ Store in FAISS → User query → Retrieve context
-→ Generate answer using LLM
-```
-
----
-
-## ▶️ How to Run
-
-### 1. Activate environment
-
-```
-venv\Scripts\activate
-```
-
-### 2. Install dependencies
-
-```
-pip install -r requirements.txt
-```
-
-### 3. Run Ollama (make sure it's running)
-
-```
-ollama run llama3
-```
-
-### 4. Run Streamlit UI
-
-```
-streamlit run src/app.py
-```
-
----
-
-## 💬 Example Usage
-
-Ask questions like:
-* "Explain difference between e commerce and e business"
-  
-
-The system retrieves relevant document chunks and generates a precise answer.
-
----
-
-## 📅 Development Timeline 
-
-### Week 1 — Foundation & Data Pipeline
-
-* Project structure setup
-* Virtual environment and dependency setup
-* PDF loading using LangChain
-* Text extraction and preprocessing
-* Document chunking using RecursiveCharacterTextSplitter
-
-### Week 2 — Core RAG Implementation
-
-* Embeddings using Sentence Transformers
-* FAISS vector database integration
-* Similarity search (top-k retrieval)
-* Context building from retrieved chunks
-
-### Week 3 — LLM + UI + Optimization
-
-* Ollama integration (llama3 / gemma models)
-* Prompt engineering for better answers
-* Streamlit UI development
-* Fixing errors (paths, embeddings, model timeouts)
-* Improving answer quality (concise + structured output)
-* Final testing and GitHub deployment
-
----
-
-## 📊 Final Status
-
-The system is fully functional and capable of:
-
-* Processing PDFs into searchable knowledge
-* Retrieving relevant context using vector search
-* Generating accurate answers using a local LLM
-* Providing an interactive UI via Streamlit
-
-
-## ✅ Current Status
-
-| Feature                  | Status      |
-| ------------------------ | ----------- |
-| Project Setup            | ✅ Completed |
-| PDF Loading              | ✅ Completed |
-| Text Chunking            | ✅ Completed |
-| Embeddings               | ✅ Completed |
-| Vector Database (FAISS)  | ✅ Completed |
-| Retrieval System         | ✅ Completed |
-| LLM Integration (Ollama) | ✅ Completed |
-| Streamlit UI             | ✅ Completed |
-
----
-
-## ⚠️ Notes
-
-* Make sure PDFs are inside the `data/` folder
-* Ollama must be running before asking questions
-* First run may take time due to model loading
-
----
-
-## 🔮 Future Improvements
-
-* 🔹 Better UI (chat interface, history)
-* 🔹 Source citations for answers
-* 🔹 Multi-document upload
-* 🔹 Deployment (Render / HuggingFace Spaces)
-* 🔹 Hybrid search (keyword + semantic)
-
----
-
-## 📌 Author
-
-**Padmavati Naik**
+│ ├── components/ # UI Components (Q&A Assistant, Vector Explorer, Evaluation Suite, Pipeline Visualizer)
+│ ├── data/ # Vector Knowledge Chunks & Evaluation Benchmark Datasets
+│ ├── types.ts # TypeScript Types & Interfaces
+│ ├── App.tsx # Main Application Dashboard
+│ └── main.tsx # React Root Entrypoint
+├── server.ts # Express Backend & RAG Endpoints
+├── package.json # Dependencies & Scripts
+├── tsconfig.json # TypeScript Compiler Configuration
+├── vite.config.ts # Vite Build Configuration
+└── README.md # Project Documentation
