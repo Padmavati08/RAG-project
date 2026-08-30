@@ -98,3 +98,57 @@ RAG-project/
 ── vite.config.ts # Vite Build Configuration
 
 └── README.md # Project Documentation
+
+
+README.md # Project Documentation
+
+## ▶️ How to Run Locally
+
+### Prerequisites
+- [Node.js](https://nodejs.org/) (version 18 or higher)
+- npm (bundled with Node.js)
+
+1. Clone the repository
+```bash
+git clone https://github.com/Padmavati08/RAG-project.git
+cd RAG-project
+
+2. Install dependencies
+code
+Bash
+
+npm install
+3. (Optional) Set up Environment Variables
+code
+Bash
+cp .env.example .env
+Add your optional Gemini API Key in .env:
+code
+Env
+GEMINI_API_KEY=your_gemini_api_key_here
+(Note: The system contains a built-in deterministic synthesizer and will function out of the box even without an external API key).
+
+4. Start the development server
+code
+Bash
+npm run dev
+
+5. Open the application
+Navigate to:
+code
+Code
+http://localhost:3000
+
+🧪 Example Test Queries
+Try running these pre-loaded domain queries in the Q&A Assistant:
+"Explain difference between e commerce and e business"
+"Explain Tata Steel SAP e-procurement workflow"
+"What are the key components of Electronic Data Interchange (EDI)?"
+"Describe the 8 key elements of a business model"
+
+📅Development Milestones
+Phase 1: Knowledge Curation & Preprocessing — Text extraction, normalization, tokenization, and sentence chunking with metadata tagging.
+Phase 2: Vector Space & Similarity Retrieval — Vector embedding computation, cosine similarity matrix ranking, and top-k filtering.
+Phase 3: Context Grounding & Prompt Synthesis — Context assembly into grounded prompts, citation tag generation, and hallucination prevention.
+Phase 4: Evaluation Benchmark Framework — Automated scoring for Faithfulness, Answer Relevance, and Context Precision metrics.
+Phase 5: Interactive Dashboard & UI — Responsive React dashboard featuring a vector database explorer, pipeline visualizer, and document ingestion workbench.
