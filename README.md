@@ -75,14 +75,26 @@ Evaluates and benchmarks RAG performance across industry-standard RAGAS metrics:
 
 ## 📁 Project Directory Structure
 RAG-project/
+
 ├── src/
-│ ├── components/ # UI Components (Q&A Assistant, Vector Explorer, Evaluation Suite, Pipeline Visualizer)
-│ ├── data/ # Vector Knowledge Chunks & Evaluation Benchmark Datasets
-│ ├── types.ts # TypeScript Types & Interfaces
-│ ├── App.tsx # Main Application Dashboard
-│ └── main.tsx # React Root Entrypoint
-├── server.ts # Express Backend & RAG Endpoints
+
+│ 
+├── components/ # UI Components (Q&A Assistant, Vector Explorer, Evaluation Suite, Pipeline Visualizer)
+│ 
+├── data/ # Vector Knowledge Chunks & Evaluation Benchmark Datasets
+│
+├── types.ts # TypeScript Types & Interfaces
+│ 
+├── App.tsx # Main Application Dashboard
+│
+└── main.tsx # React Root Entrypoint
+├
+── server.ts # Express Backend & RAG Endpoints
+
 ├── package.json # Dependencies & Scripts
-├── tsconfig.json # TypeScript Compiler Configuration
-├── vite.config.ts # Vite Build Configuration
+├
+── tsconfig.json # TypeScript Compiler Configuration
+├
+── vite.config.ts # Vite Build Configuration
+
 └── README.md # Project Documentation
