@@ -139,6 +139,8 @@ code
 Code
 http://localhost:3000
 
+###Live demo: https://rag-project-psi-drab.vercel.app
+
 🧪 Example Test Queries
 Try running these pre-loaded domain queries in the Q&A Assistant:
 "Explain difference between e commerce and e business"
