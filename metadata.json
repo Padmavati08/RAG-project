@@ -1,0 +1,6 @@
+{
+  "name": "RAG Educational Assistant",
+  "description": "A complete Retrieval-Augmented Generation (RAG) educational QA system that answers questions from documents using semantic search and AI.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
