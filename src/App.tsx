@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { clientRagStore } from './lib/ragEngine';
+import { extractTextFromPdfFile } from './lib/pdfExtractor';
 import {
   BookOpen,
   Search,
@@ -133,8 +135,14 @@ const SAMPLE_QUESTIONS = [
 export default function App() {
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(false);
-  const [status, setStatus] = useState<SystemStatus | null>(null);
-  const [documents, setDocuments] = useState<DocumentInfo[]>([]);
+  const [status, setStatus] = useState<SystemStatus | null>(() => ({
+    ready: true,
+    totalDocuments: clientRagStore.documents.length,
+    totalChunks: clientRagStore.chunks.length,
+    hasGeminiKey: false,
+    activeModel: 'Local RAG Engine (Zero API Key - Client & Server Ready)',
+  }));
+  const [documents, setDocuments] = useState<DocumentInfo[]>(() => clientRagStore.documents);
   const [currentResult, setCurrentResult] = useState<QueryResult | null>(null);
   const [history, setHistory] = useState<QueryResult[]>([]);
   const [copiedAnswer, setCopiedAnswer] = useState(false);
@@ -143,8 +151,8 @@ export default function App() {
   const [selectedDocId, setSelectedDocId] = useState<string>('all');
   const [showBaselineComparison, setShowBaselineComparison] = useState(true);
 
-  // Vector DB data
-  const [vectorData, setVectorData] = useState<VectorStoreData | null>(null);
+  // Vector DB data initialized with preloaded knowledge chunks
+  const [vectorData, setVectorData] = useState<VectorStoreData | null>(() => clientRagStore.getVectorStoreData());
   const [vectorSearchFilter, setVectorSearchFilter] = useState('');
 
   // Benchmark suite data
@@ -169,37 +177,53 @@ export default function App() {
   const fetchStatus = async () => {
     try {
       const res = await fetch('/api/status');
-      if (res.ok) {
+      const contentType = res.headers.get('content-type') || '';
+      if (res.ok && contentType.includes('application/json')) {
         const data = await res.json();
         setStatus(data);
+        return;
       }
     } catch (err) {
-      console.error('Failed to fetch status:', err);
+      console.warn('API status route not available, using embedded client RAG engine:', err);
     }
+    // Client-side fallback
+    setStatus({
+      ready: true,
+      totalDocuments: clientRagStore.documents.length,
+      totalChunks: clientRagStore.chunks.length,
+      hasGeminiKey: false,
+      activeModel: 'Local RAG Engine (Zero API Key - Client & Server Ready)',
+    });
   };
 
   const fetchDocuments = async () => {
     try {
       const res = await fetch('/api/documents');
-      if (res.ok) {
+      const contentType = res.headers.get('content-type') || '';
+      if (res.ok && contentType.includes('application/json')) {
         const data = await res.json();
         setDocuments(data.documents || []);
+        return;
       }
     } catch (err) {
-      console.error('Failed to fetch documents:', err);
+      console.warn('API documents route not available, using client store:', err);
     }
+    setDocuments(clientRagStore.documents);
   };
 
   const fetchVectorStore = async () => {
     try {
       const res = await fetch('/api/vector-store');
-      if (res.ok) {
+      const contentType = res.headers.get('content-type') || '';
+      if (res.ok && contentType.includes('application/json')) {
         const data = await res.json();
         setVectorData(data);
+        return;
       }
     } catch (err) {
-      console.error('Failed to fetch vector store:', err);
+      console.warn('API vector store not available, using client store:', err);
     }
+    setVectorData(clientRagStore.getVectorStoreData());
   };
 
   const handleQuery = async (searchQuery?: string) => {
@@ -219,23 +243,38 @@ export default function App() {
         }),
       });
 
-      if (!res.ok) {
-        throw new Error('Query execution failed');
-      }
+      if (res.ok) {
+        const data = await res.json();
+        const resultWithTime: QueryResult = {
+          ...data,
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        };
 
-      const data = await res.json();
+        setCurrentResult(resultWithTime);
+        setHistory((prev) => [resultWithTime, ...prev]);
+        if (searchQuery) {
+          setQuery(searchQuery);
+        }
+        return;
+      }
+    } catch (err: any) {
+      console.warn('API query route unavailable or failed, using client-side RAG engine:', err);
+    }
+
+    // Client-side fallback computation
+    try {
+      const clientResult = clientRagStore.query(q.trim(), selectedDocId);
       const resultWithTime: QueryResult = {
-        ...data,
+        ...clientResult,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       };
-
       setCurrentResult(resultWithTime);
       setHistory((prev) => [resultWithTime, ...prev]);
       if (searchQuery) {
         setQuery(searchQuery);
       }
-    } catch (err: any) {
-      console.error('Query error:', err);
+    } catch (err) {
+      console.error('Client query failed:', err);
     } finally {
       setLoading(false);
     }
@@ -244,13 +283,22 @@ export default function App() {
   const runBenchmarkSuite = async () => {
     setRunningBenchmark(true);
     try {
-      const res = await fetch('/api/benchmark');
+      const res = await fetch('/api/benchmark', { method: 'POST' });
       if (res.ok) {
         const data = await res.json();
         setBenchmarkData(data);
+        return;
       }
     } catch (err) {
-      console.error('Failed to run benchmark:', err);
+      console.warn('API benchmark unavailable, running in client-side engine:', err);
+    }
+
+    // Client-side fallback benchmark
+    try {
+      const bench = clientRagStore.runBenchmarks();
+      setBenchmarkData(bench);
+    } catch (err) {
+      console.error('Failed client benchmarks:', err);
     } finally {
       setRunningBenchmark(false);
     }
@@ -287,45 +335,71 @@ export default function App() {
     setUploadError(null);
 
     try {
-      let payload: any = {
-        title: uploadTitle.trim() || (uploadFile ? uploadFile.name : 'Uploaded Document'),
-      };
+      let docTitle = uploadTitle.trim() || (uploadFile ? uploadFile.name.replace(/\.[^/.]+$/, '') : 'Uploaded Document');
+      let fileName = uploadFile ? uploadFile.name : 'pasted-notes.txt';
+      let extractedText = uploadText.trim();
+      let numPages = 1;
 
       if (uploadFile) {
-        payload.fileName = uploadFile.name;
-        const reader = new FileReader();
-        const base64Promise = new Promise<string>((resolve, reject) => {
-          reader.onload = () => resolve(reader.result as string);
-          reader.onerror = reject;
-          reader.readAsDataURL(uploadFile);
+        if (uploadFile.type === 'text/plain' || uploadFile.name.endsWith('.txt') || uploadFile.name.endsWith('.md')) {
+          extractedText = await uploadFile.text();
+        } else if (uploadFile.type === 'application/pdf' || uploadFile.name.toLowerCase().endsWith('.pdf')) {
+          try {
+            const pdfResult = await extractTextFromPdfFile(uploadFile);
+            if (pdfResult.text && pdfResult.text.length > 20) {
+              extractedText = pdfResult.text;
+              numPages = pdfResult.numPages || 1;
+            }
+          } catch (e) {
+            console.warn('Browser PDF extraction warning:', e);
+          }
+        }
+      }
+
+      if (!extractedText.trim()) {
+        throw new Error('Could not extract readable text from this file. Please paste text directly or try another document.');
+      }
+
+      // Try uploading to server if backend is active
+      let uploadedOnServer = false;
+      try {
+        const payload: any = {
+          title: docTitle,
+          fileName,
+          textContent: extractedText,
+        };
+
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
         });
-        payload.fileBase64 = await base64Promise;
-      } else {
-        payload.textContent = uploadText.trim();
-        payload.fileName = 'pasted-notes.txt';
+
+        if (res.ok) {
+          uploadedOnServer = true;
+          await fetchDocuments();
+          await fetchStatus();
+          await fetchVectorStore();
+        }
+      } catch (e) {
+        // Backend not available (e.g. running as static site on Vercel)
+        console.info('Server upload not reachable, proceeding with client-side indexing:', e);
       }
 
-      const res = await fetch('/api/upload', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.error || 'Upload failed');
+      // Always index into client store as well (or as fallback)
+      clientRagStore.addDocument(docTitle, extractedText, fileName, numPages);
+      if (!uploadedOnServer) {
+        await fetchDocuments();
+        await fetchStatus();
+        await fetchVectorStore();
       }
-
-      await fetchDocuments();
-      await fetchStatus();
-      await fetchVectorStore();
 
       setIsUploadOpen(false);
       setUploadFile(null);
       setUploadTitle('');
       setUploadText('');
     } catch (err: any) {
-      setUploadError(err.message || 'Failed to upload document');
+      setUploadError(err.message || 'Failed to process and index document');
     } finally {
       setUploading(false);
     }
@@ -335,13 +409,15 @@ export default function App() {
     if (confirm('Reset knowledge base to default educational notes?')) {
       try {
         await fetch('/api/reset', { method: 'POST' });
-        await fetchDocuments();
-        await fetchStatus();
-        await fetchVectorStore();
-        setCurrentResult(null);
-      } catch (err) {
-        console.error('Reset error:', err);
+      } catch {
+        // ignore
       }
+      clientRagStore.init();
+      await fetchDocuments();
+      await fetchStatus();
+      await fetchVectorStore();
+      setCurrentResult(null);
+      setHistory([]);
     }
   };
 
