@@ -139,18 +139,25 @@ code
 Code
 http://localhost:3000
 
-###Live demo: https://rag-project-psi-drab.vercel.app
+## 🚀 Live Demo & Links
 
-🧪 Example Test Queries
+- **Live Demo Link (Cloud Container)**: [https://ais-pre-3w3adguct43nixvt63kzcq-735430791090.asia-southeast1.run.app](https://ais-pre-3w3adguct43nixvt63kzcq-735430791090.asia-southeast1.run.app)
+- **Vercel Deployment**: [https://rag-project-psi-drab.vercel.app](https://rag-project-psi-drab.vercel.app)
+- **GitHub Repository**: [https://github.com/Padmavati08/RAG-project](https://github.com/Padmavati08/RAG-project)
+
+> **Zero API Key Required**: This project operates 100% out of the box without requiring any external paid API keys. It features a dual-mode RAG engine with automated in-browser client execution (for static hosts like Vercel/GitHub Pages) and full-stack Express server execution (for Node/Render/Docker).
+
+## 🧪 Example Test Queries
 Try running these pre-loaded domain queries in the Q&A Assistant:
-"Explain difference between e commerce and e business"
-"Explain Tata Steel SAP e-procurement workflow"
-"What are the key components of Electronic Data Interchange (EDI)?"
-"Describe the 8 key elements of a business model"
+1. *"Explain difference between e commerce and e business"*
+2. *"Explain Tata Steel SAP e-procurement workflow and results"*
+3. *"How did ITC e-Choupal transform the soybean supply chain?"*
+4. *"What are the primary Web Business Models described?"*
+5. *"What is Customer Delivered Value according to Kotler?"*
 
-📅Development Milestones
-Phase 1: Knowledge Curation & Preprocessing — Text extraction, normalization, tokenization, and sentence chunking with metadata tagging.
-Phase 2: Vector Space & Similarity Retrieval — Vector embedding computation, cosine similarity matrix ranking, and top-k filtering.
-Phase 3: Context Grounding & Prompt Synthesis — Context assembly into grounded prompts, citation tag generation, and hallucination prevention.
-Phase 4: Evaluation Benchmark Framework — Automated scoring for Faithfulness, Answer Relevance, and Context Precision metrics.
-Phase 5: Interactive Dashboard & UI — Responsive React dashboard featuring a vector database explorer, pipeline visualizer, and document ingestion workbench.
+## 📅 Development Milestones
+- **Phase 1: Knowledge Curation & Preprocessing** — Text extraction, normalization, tokenization, and sentence chunking with metadata tagging.
+- **Phase 2: Vector Space & Similarity Retrieval** — Vector embedding computation, BM25 / TF-IDF ranking, and top-k filtering.
+- **Phase 3: Context Grounding & Prompt Synthesis** — Context assembly into grounded prompts, citation tag generation, and hallucination prevention.
+- **Phase 4: Evaluation Benchmark Framework** — Automated scoring for Faithfulness, Answer Relevance, and Context Precision metrics.
+- **Phase 5: Interactive Dashboard & UI** — Responsive React dashboard featuring a vector database explorer, pipeline visualizer, and document ingestion workbench.
